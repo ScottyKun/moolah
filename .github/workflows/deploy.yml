@@ -57,8 +57,15 @@ jobs:
 
       - name: Vérifier que le site répond
         run: |
-          sleep 5
-          curl -fsS -o /dev/null -w "HTTP %{http_code}\n" "https://${{ vars.SITE_HOST }}/"
+          for i in $(seq 1 12); do
+            if curl -fsS -o /dev/null -w "HTTP %{http_code}\n" "https://${{ vars.SITE_HOST }}/"; then
+              exit 0
+            fi
+            echo "Pas encore prêt (essai $i/12), nouvel essai dans 10 s…"
+            sleep 10
+          done
+          echo "Le site ne répond pas en HTTPS valide après 2 minutes."
+          exit 1
 
       - name: Nettoyer la clé
         if: always()
