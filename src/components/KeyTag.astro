@@ -1,6 +1,4 @@
 ---
-// Demande rapide, en forme d'étiquette de clé d'hôtel.
-// Transmet les dates à /reservation qui pré-remplit le formulaire complet.
 ---
 
 <form class="keytag" action="/reservation" method="get" aria-labelledby="keytag-title">
@@ -55,7 +53,6 @@
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, var(--notch) 100%, 0 calc(100% - var(--notch)));
     filter: drop-shadow(0 4px 16px rgba(26, 26, 26, 0.08));
   }
-  /* Filet or sable intérieur : le détail premium */
   .keytag::before {
     content: ''; position: absolute; inset: 8px; pointer-events: none;
     border: 1px solid var(--or); border-radius: 152px 152px 0 0;
