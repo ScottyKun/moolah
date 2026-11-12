@@ -33,7 +33,7 @@ jobs:
   deploy:
     name: Deploiement
     needs: check
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment: production
     steps:
