@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import MenuList from '../components/MenuList.astro';
+import TableBooking from '../components/TableBooking.astro';
+import { hotel, hours, snackMenu, drinksMenu } from '../data/hotel';
+import { menuSchema, placeSchema } from '../data/schema';
+
+const schema = placeSchema(Astro.site, 'BarOrPub', 'Snack-bar et bar lounge du Moolah Hotel', {
+  hasMenu: [
+    menuSchema(snackMenu, 'La carte du snack-bar'),
+    menuSchema(drinksMenu, 'La carte des boissons'),
+  ],
+});
+---
+
+<Base
+  title="Snack-bar et bar lounge"
+  description="Le snack-bar et le bar lounge du Moolah Hotel à Batcham : soya, grillades, bières, jus maison et cocktails. Carte des boissons en ligne, réservation par WhatsApp."
+  schema={schema}
+>
+  <section class="wrap intro">
+    <div>
+      <h1>Le snack-bar et le bar lounge</h1>
+      <hr class="rule-or" />
+      <p class="lede">Un en-cas à toute heure au snack-bar, puis un verre au calme dans le lounge quand la journée se termine.</p>
+      <dl class="hours">
+        <div><dt>Snack-bar</dt><dd>{hours.snack}</dd></div>
+        <div><dt>Bar lounge</dt><dd>{hours.lounge}</dd></div>
+      </dl>
+      <TableBooking place="bar lounge" />
+    </div>
+    <Photo alt="Le bar lounge en soirée" ratio="4 / 3" eager />
+  </section>
+
+  <section class="section section-alt" aria-labelledby="snack-title">
+    <div class="wrap">
+      <h2 id="snack-title">Au snack-bar</h2>
+      <hr class="rule-or" />
+      <MenuList sections={snackMenu} columns={1} />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="boissons-title">
+    <div class="wrap">
+      <h2 id="boissons-title">La carte des boissons</h2>
+      <hr class="rule-or" />
+      <MenuList sections={drinksMenu} />
+      <p class="caption">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Prix TTC, TVA de {hotel.vat} incluse.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .intro { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: center; padding-block: 64px var(--section); }
+  .intro :global(.photo) { border-radius: var(--radius-card); }
+  .hours { margin: 0; }
+  .hours div { display: flex; justify-content: space-between; gap: 1rem; padding: 10px 0; border-bottom: 1px solid var(--filet); font-size: 1rem; max-width: 26rem; }
+  .hours dt { font-weight: 600; }
+  .hours dd { margin: 0; color: var(--taupe); }
+  #snack-title + hr + :global(.menu) { max-width: 640px; }
+  @media (max-width: 860px) { .intro { grid-template-columns: 1fr; gap: 24px; padding-top: 40px; } }
+</style>

@@ -1,67 +1,41 @@
 ---
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
-import { hotel, menu, fcfa } from '../data/hotel';
+import MenuList from '../components/MenuList.astro';
+import TableBooking from '../components/TableBooking.astro';
+import { hotel, menu, hours } from '../data/hotel';
+import { menuSchema, placeSchema } from '../data/schema';
 
-const menuSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Restaurant',
-  name: 'Restaurant du Moolah Hotel',
+const schema = placeSchema(Astro.site, 'Restaurant', 'Restaurant du Moolah Hotel', {
   servesCuisine: ['Camerounaise', 'Internationale'],
-  containedInPlace: { '@id': new URL('/#hotel', Astro.site).href },
-  address: { '@type': 'PostalAddress', addressLocality: hotel.address.locality, addressRegion: hotel.address.region, addressCountry: hotel.address.country },
-  telephone: hotel.phone,
-  hasMenu: {
-    '@type': 'Menu',
-    hasMenuSection: menu.map((s) => ({
-      '@type': 'MenuSection',
-      name: s.name,
-      hasMenuItem: s.items.map((i) => ({
-        '@type': 'MenuItem',
-        name: i.name,
-        ...(i.detail && { description: i.detail }),
-        ...(i.price && { offers: { '@type': 'Offer', price: i.price, priceCurrency: 'XAF' } }),
-      })),
-    })),
-  },
-};
+  hasMenu: menuSchema(menu, 'La carte du restaurant'),
+});
 ---
 
 <Base
-  title="Restaurant, snack-bar et bar lounge"
-  description="Le restaurant du Moolah Hotel à Batcham : cuisine camerounaise et internationale, snack-bar, bar lounge et room service. Consultez la carte en ligne."
-  schema={menuSchema}
+  title="Restaurant"
+  description="Le restaurant du Moolah Hotel à Batcham : cuisine camerounaise et internationale, ouvert à tous. Carte en ligne, réservation par WhatsApp ou téléphone."
+  schema={schema}
 >
   <section class="wrap intro">
     <div>
       <h1>Le restaurant</h1>
       <hr class="rule-or" />
-      <p class="lede">Cuisine camerounaise et internationale, servie au restaurant, au snack-bar ou dans votre chambre.</p>
-      <p>Le restaurant est ouvert aux clients de l'hôtel comme aux visiteurs. Pour un groupe, prévenez-nous la veille.</p>
-      <a class="btn btn--secondary" href={`tel:${hotel.phone}`}>Réserver une table par téléphone</a>
+      <p class="lede">Cuisine camerounaise et internationale, servie au restaurant ou dans votre chambre.</p>
+      <p>Le restaurant est ouvert aux clients de l'hôtel comme aux visiteurs.</p>
+      <TableBooking place="restaurant" hours={hours.restaurant} />
     </div>
     <Photo alt="Un plat de taro sauce jaune" ratio="4 / 3" eager />
   </section>
 
   <section class="section section-alt" aria-labelledby="carte-title">
     <div class="wrap">
-      <h2 id="carte-title">La carte</h2>
-      <hr class="rule-or" />
-      <div class="menu">
-        {menu.map((s) => (
-          <section class="card menu-section" aria-label={s.name}>
-            <h3>{s.name}</h3>
-            <ul>
-              {s.items.map((i) => (
-                <li>
-                  <span class="dish">{i.name}{i.detail && <span class="detail">{i.detail}</span>}</span>
-                  {i.price && <span class="price">{fcfa(i.price)}</span>}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
+      <div class="head">
+        <h2 id="carte-title">La carte</h2>
+        <a href="/bar-lounge">Voir la carte des boissons</a>
       </div>
+      <hr class="rule-or" />
+      <MenuList sections={menu} />
       <p class="caption">Carte susceptible d'évoluer selon le marché. Prix TTC, TVA de {hotel.vat} incluse.</p>
     </div>
   </section>
@@ -70,15 +44,7 @@ const menuSchema = {
 <style>
   .intro { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: center; padding-block: 64px var(--section); }
   .intro :global(.photo) { border-radius: var(--radius-card); }
+  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .head a { font-weight: 600; }
   @media (max-width: 860px) { .intro { grid-template-columns: 1fr; gap: 24px; padding-top: 40px; } }
-  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); margin-bottom: 24px; }
-  .menu-section { padding: 28px; }
-  .menu-section h3 { font-family: var(--serif); color: var(--bordeaux); font-weight: 600; margin-bottom: 1rem; }
-  ul { list-style: none; margin: 0; padding: 0; }
-  li { display: flex; justify-content: space-between; gap: 1rem; padding: 12px 0; border-bottom: 1px solid var(--filet); }
-  li:last-child { border-bottom: 0; }
-  .dish { font-weight: 600; display: grid; }
-  .detail { font-weight: 400; font-size: 0.9375rem; color: var(--taupe); }
-  .price { white-space: nowrap; font-weight: 600; }
-  @media (max-width: 960px) { .menu { grid-template-columns: 1fr; } }
 </style>

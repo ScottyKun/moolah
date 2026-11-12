@@ -14,6 +14,12 @@ export function wireRequestForm(form: HTMLFormElement, buildMessage: (data: Form
     if (error) error.hidden = true;
     const data = new FormData(form);
 
+    if (String(data.get('site_web') ?? '').trim() !== '') {
+      location.href = '/merci';
+      return;
+    }
+    data.delete('site_web');
+
     if (!endpoint) {
       const text = encodeURIComponent(buildMessage(data));
       window.open(`https://wa.me/${whatsapp}?text=${text}`, '_blank', 'noopener');

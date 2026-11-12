@@ -1,8 +1,3 @@
-// Source unique des infos de l'hôtel : elles alimentent les pages,
-// les balises SEO et les données structurées (JSON-LD) pour Google.
-// Tout ce qui est marqué À CONFIRMER doit être validé par la direction
-// avant la mise en ligne (charte : aucun tarif publié sans validation).
-
 export const hotel = {
   name: 'Moolah Hotel',
   description:
@@ -90,11 +85,9 @@ export const services: Service[] = [
   { icon: 'utensils', name: 'Restaurant & snack-bar', detail: 'Cuisine camerounaise et internationale, du petit-déjeuner au dîner.' },
   { icon: 'wine', name: 'Bar lounge', detail: 'Pour un verre après le travail ou une soirée entre amis.' },
   { icon: 'party-popper', name: 'Salles de fête', detail: 'Mariages, dots, anniversaires, réceptions : une salle décorée selon votre événement.' },
-  { icon: 'briefcase', name: 'Salles de réunion', detail: 'Séminaires, formations et réunions d’affaires, avec pause café.' },
-  { icon: 'chef-hat', name: 'Service traiteur', detail: 'Nos cuisiniers préparent vos repas d’événement, sur place ou à l’extérieur.' },
+  { icon: 'briefcase', name: 'Salles de réunion', detail: 'Séminaires, formations et réunions d’affaires.' },
   { icon: 'concierge-bell', name: 'Room service', detail: 'Repas et boissons servis dans votre chambre.' },
   { icon: 'wifi', name: 'Wi-Fi haut débit', detail: 'Inclus dans toutes les chambres et les espaces communs.' },
-  { icon: 'plane', name: 'Navette aéroport', detail: 'Sur demande, à organiser lors de votre réservation.' },
 ];
 
 // La promesse client de la charte : « Réponse rapide, service sûr, séjour réussi »
@@ -143,5 +136,73 @@ export const faq: { q: string; a: string }[] = [
   { q: 'Ma réservation est-elle confirmée dès l’envoi ?', a: `Non : vous envoyez une demande, nous vérifions la disponibilité et nous vous confirmons par écrit en moins de ${hotel.responseTime}.` },
   { q: 'Comment puis-je payer ?', a: 'En espèces à la réception. Les autres moyens de paiement vous sont précisés dans la confirmation.' }, // À CONFIRMER
   { q: 'Les prix incluent-ils la TVA ?', a: `Oui, tous nos prix sont indiqués TTC, TVA de ${hotel.vat} incluse.` },
-  { q: 'Proposez-vous une navette depuis l’aéroport ?', a: 'Oui, sur demande. Indiquez-le dans votre demande de réservation avec l’heure de votre vol.' },
+];
+
+
+// Horaires — DONNÉES FICTIVES, à remplacer par les vrais horaires
+export const hours = {
+  restaurant: 'Tous les jours, de 6 h 30 à 22 h 30',
+  snack: 'Tous les jours, de 11 h à 23 h',
+  lounge: 'Tous les jours, de 17 h à 1 h',
+};
+
+// Carte du snack-bar et du bar lounge — DONNÉES FICTIVES (noms et prix),
+// à remplacer par la carte et les tarifs validés par la direction.
+export const snackMenu: MenuSection[] = [
+  {
+    name: 'À grignoter',
+    items: [
+      { name: 'Soya', detail: 'Brochettes de bœuf épicées, oignons', price: 1500 },
+      { name: 'Poisson braisé', detail: 'Bâton de manioc ou plantain', price: 4500 },
+      { name: 'Frites de plantain', price: 1000 },
+      { name: 'Sandwich poulet', detail: 'Pain du jour, crudités', price: 2000 },
+      { name: 'Burger Moolah', detail: 'Bœuf, fromage, frites', price: 3500 },
+    ],
+  },
+];
+
+export const drinksMenu: MenuSection[] = [
+  {
+    name: 'Bières',
+    items: [
+      { name: '33 Export', detail: '65 cl', price: 800 },
+      { name: 'Castel Beer', detail: '65 cl', price: 800 },
+      { name: 'Mützig', detail: '65 cl', price: 900 },
+      { name: 'Guinness', detail: '65 cl', price: 1200 },
+    ],
+  },
+  {
+    name: 'Sans alcool',
+    items: [
+      { name: 'Jus de foléré', detail: 'Maison, servi frais', price: 1000 },
+      { name: 'Jus de gingembre', detail: 'Maison', price: 1000 },
+      { name: 'Jus d’ananas frais', price: 1200 },
+      { name: 'Sodas', detail: 'Top, Djino, Coca-Cola', price: 600 },
+      { name: 'Eau minérale', detail: '1,5 l', price: 700 },
+    ],
+  },
+  {
+    name: 'Cocktails',
+    items: [
+      { name: 'Planteur', detail: 'Rhum, jus de fruits, cannelle', price: 3500 },
+      { name: 'Mojito', detail: 'Rhum, menthe, citron vert', price: 3500 },
+      { name: 'Moolah Sunset', detail: 'Sans alcool : foléré, ananas, gingembre', price: 2500 },
+    ],
+  },
+  {
+    name: 'Vins et spiritueux',
+    items: [
+      { name: 'Vin rouge ou blanc', detail: 'Au verre', price: 2500 },
+      { name: 'Whisky', detail: '4 cl', price: 3000 },
+      { name: 'Champagne', detail: 'La bouteille, sur commande', price: 45000 },
+    ],
+  },
+  {
+    name: 'Boissons chaudes',
+    items: [
+      { name: 'Café de l’Ouest', detail: 'Arabica de la région', price: 800 },
+      { name: 'Thé ou infusion', price: 600 },
+      { name: 'Chocolat chaud', price: 1000 },
+    ],
+  },
 ];

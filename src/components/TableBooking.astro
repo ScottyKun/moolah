@@ -1,0 +1,27 @@
+---
+import { hotel } from '../data/hotel';
+import Icon from './Icon.astro';
+import WhatsAppIcon from './WhatsAppIcon.astro';
+interface Props { place: string; hours?: string }
+const { place, hours } = Astro.props;
+const text = `Bonjour Moolah Hotel, je souhaite réserver une table au ${place}.\nDate : \nHeure : \nNombre de personnes : \nNom : `;
+const wa = `https://wa.me/${hotel.whatsapp}?text=${encodeURIComponent(text)}`;
+---
+
+<div class="booking">
+  {hours && <p class="hours"><Icon name="clock" class="icon icon-sm" />{hours}</p>}
+  <p class="label">Réserver une table</p>
+  <div class="actions">
+    <a class="btn btn--whatsapp" href={wa} rel="noopener"><WhatsAppIcon />Par WhatsApp</a>
+    <a class="btn btn--secondary" href={`tel:${hotel.phone}`}><Icon name="phone" class="icon icon-sm" />Par téléphone</a>
+  </div>
+  <p class="hint">Pour un groupe de plus de 10 personnes, prévenez-nous la veille.</p>
+</div>
+
+<style>
+  .booking { display: grid; gap: 12px; margin-top: 1.5rem; }
+  .booking p { margin: 0; }
+  .hours { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+  .label { margin-top: 0.5rem !important; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+</style>

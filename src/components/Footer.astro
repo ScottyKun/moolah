@@ -28,6 +28,7 @@ const socials = Object.entries(hotel.social).filter(([, url]) => url);
       <ul>
         <li><a href="/chambres">Chambres</a></li>
         <li><a href="/restaurant">Restaurant</a></li>
+        <li><a href="/bar-lounge">Bar lounge</a></li>
         <li><a href="/evenements">Événements</a></li>
         {socials.map(([name, url]) => <li><a href={url} rel="noopener" style="text-transform:capitalize">{name}</a></li>)}
         <li><a href="/mentions-legales">Mentions légales</a></li>

@@ -7,7 +7,6 @@ import { hotel, eventTypes } from '../data/hotel';
 const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ?? '';
 const offer = [
   { icon: 'party-popper', title: 'La salle', text: 'Une salle de fête décorée selon vos couleurs, ou une salle de réunion équipée.' },
-  { icon: 'chef-hat', title: 'Le traiteur', text: 'Menus camerounais et internationaux, cocktail, buffet ou service à table.' },
   { icon: 'bed-double', title: 'Les chambres', text: 'Des chambres pour vos invités venus de loin, et la suite pour les mariés.' },
   { icon: 'users', title: 'Le suivi', text: 'Un interlocuteur unique qui vous accompagne du devis jusqu’au jour J.' },
 ];
@@ -15,18 +14,17 @@ const offer = [
 
 <Base
   title="Mariages, dots, réceptions et séminaires"
-  description="Salles de fête et de réunion, service traiteur et hébergement des invités au Moolah Hotel à Batcham. Demandez votre devis, réponse en moins de 4 h."
+  description="Salles de fête et de réunion, décoration et hébergement des invités au Moolah Hotel à Batcham. Demandez votre devis, réponse en moins de 4 h."
 >
   <section class="wrap intro">
     <h1>Vos événements à Batcham</h1>
     <p class="lede">Mariages, dots, anniversaires, réceptions familiales, séminaires : nous accueillons vos invités et nous nous occupons du reste.</p>
   </section>
 
-  <!-- Galerie « salle décorée » en premier (charte §22) -->
   <section class="wrap gallery" aria-label="Nos salles">
     <Photo class="g-main" alt="La salle de fête décorée pour un mariage" ratio="3 / 2" eager />
     <Photo alt="La salle de réunion" ratio="4 / 3" />
-    <Photo alt="Un buffet du service traiteur" ratio="4 / 3" />
+    <Photo alt="La salle de fête vue de l'entrée" ratio="4 / 3" />
   </section>
 
   <section class="section wrap" aria-labelledby="offre-title">
@@ -50,6 +48,7 @@ const offer = [
 
       <form id="devis" class="card form" data-endpoint={endpoint} data-whatsapp={hotel.whatsapp}>
         <input type="hidden" name="type" value="Demande de devis événement" />
+        <div class="hp" aria-hidden="true"><label>Site web <input type="text" name="site_web" tabindex="-1" autocomplete="off" /></label></div>
         <p class="step-label" id="step-label">Étape 1 sur 2 : votre événement</p>
 
         <fieldset data-step="1">
@@ -67,13 +66,12 @@ const offer = [
             </div>
             <div class="field">
               <label for="ev-invites">Nombre d'invités</label>
-              <input id="ev-invites" name="invites" type="number" min="1" inputmode="numeric" required />
+              <input id="ev-invites" name="invites" type="number" min="1" max="2000" inputmode="numeric" required />
             </div>
           </div>
           <fieldset class="needs">
             <legend class="label">Vous avez besoin de</legend>
             <label><input type="checkbox" name="besoins" value="Salle" checked /> Salle</label>
-            <label><input type="checkbox" name="besoins" value="Traiteur" /> Traiteur</label>
             <label><input type="checkbox" name="besoins" value="Décoration" /> Décoration</label>
             <label><input type="checkbox" name="besoins" value="Chambres pour les invités" /> Chambres pour les invités</label>
           </fieldset>
@@ -84,15 +82,15 @@ const offer = [
           <legend class="sr-only">Vos coordonnées</legend>
           <div class="field">
             <label for="ev-nom">Nom et prénom</label>
-            <input id="ev-nom" name="nom" autocomplete="name" required />
+            <input id="ev-nom" name="nom" autocomplete="name" maxlength="80" required />
           </div>
           <div class="field">
             <label for="ev-tel">Téléphone ou WhatsApp</label>
-            <input id="ev-tel" name="telephone" type="tel" autocomplete="tel" placeholder="+237 6…" required />
+            <input id="ev-tel" name="telephone" type="tel" autocomplete="tel" maxlength="25" placeholder="+237 6…" required />
           </div>
           <div class="field">
             <label for="ev-msg">Précisions <span class="hint">(facultatif)</span></label>
-            <textarea id="ev-msg" name="message" placeholder="Horaires, budget, thème de décoration…"></textarea>
+            <textarea id="ev-msg" name="message" maxlength="1000" placeholder="Horaires, budget, thème de décoration…"></textarea>
           </div>
           <label class="check"><input type="checkbox" name="consentement" value="Oui" required /> J'accepte que Moolah Hotel utilise ces informations pour préparer mon devis.</label>
           <p class="form-error" data-error role="alert" hidden></p>
@@ -149,7 +147,7 @@ const offer = [
   .gallery :global(.g-main) { grid-row: span 2; height: 100%; aspect-ratio: auto !important; min-height: 320px; }
   @media (max-width: 760px) { .gallery { grid-template-columns: 1fr 1fr; } .gallery :global(.g-main) { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 3 / 2 !important; height: auto; min-height: 0; } }
 
-  .offer { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px var(--gutter); }
+  .offer { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px var(--gutter); }
   .offer li { display: grid; gap: 0.6rem; align-content: start; }
   .offer h3 { font-size: 1.125rem; }
   .offer p { margin: 0; color: var(--taupe); font-size: 1rem; }

@@ -17,6 +17,7 @@ const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ??
 
     <form id="booking" class="form" data-endpoint={endpoint} data-whatsapp={hotel.whatsapp} novalidate={false}>
       <input type="hidden" name="type" value="Réservation de chambre" />
+      <div class="hp" aria-hidden="true"><label>Site web <input type="text" name="site_web" tabindex="-1" autocomplete="off" /></label></div>
       <fieldset>
         <legend>Votre séjour</legend>
         <div class="row">
@@ -47,11 +48,6 @@ const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ??
             </label>
           ))}
         </div>
-
-        <label class="check">
-          <input type="checkbox" name="navette" value="Oui" />
-          J'ai besoin de la navette aéroport
-        </label>
       </fieldset>
 
       <fieldset>
@@ -59,15 +55,15 @@ const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ??
         <div class="row two">
           <div class="field">
             <label for="nom">Nom et prénom</label>
-            <input id="nom" name="nom" autocomplete="name" required />
+            <input id="nom" name="nom" autocomplete="name" maxlength="80" required />
           </div>
           <div class="field">
             <label for="tel">Téléphone ou WhatsApp</label>
-            <input id="tel" name="telephone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+237 6…" required />
+            <input id="tel" name="telephone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+237 6…" maxlength="25" required />
           </div>
           <div class="field">
-            <label for="email">E-mail <span class="hint">(facultatif)</span></label>
-            <input id="email" name="email" type="email" autocomplete="email" />
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" autocomplete="email" maxlength="120" />
           </div>
           <div class="field">
             <label for="heure">Heure d'arrivée prévue</label>
@@ -76,7 +72,7 @@ const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ??
         </div>
         <div class="field">
           <label for="message">Une demande particulière ?</label>
-          <textarea id="message" name="message" placeholder="Lit bébé, arrivée tardive, numéro de vol pour la navette…"></textarea>
+          <textarea id="message" name="message" placeholder="Lit bébé, arrivée tardive…" maxlength="1000" ></textarea>
         </div>
         <label class="check">
           <input type="checkbox" name="consentement" value="Oui" required />

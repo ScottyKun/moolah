@@ -20,7 +20,6 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${hotel.geo.lat
   description={hotel.description}
   schema={faqSchema}
 >
-  <!-- Hero statique (charte §22 : pas de diaporama), texte sur fond crème -->
   <section class="hero wrap">
     <div class="hero-text">
       <h1>Votre hôtel à Batcham, pour dormir, se restaurer et célébrer</h1>
@@ -71,7 +70,10 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${hotel.geo.lat
         bar lounge vous reçoit pour un verre en fin de journée.
       </p>
       <p>Le restaurant est ouvert à tous, que vous soyez client de l'hôtel ou non.</p>
-      <a class="btn btn--secondary" href="/restaurant">Consulter la carte</a>
+       <div class="resto-links">
+        <a class="btn btn--secondary" href="/restaurant">Carte du restaurant</a>
+        <a class="btn btn--secondary" href="/bar-lounge">Carte des boissons</a>
+      </div>
     </div>
   </section>
 
@@ -199,4 +201,6 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${hotel.geo.lat
   .access address { font-style: normal; margin-bottom: 1rem; }
   .access-actions { display: grid; gap: 12px; justify-items: start; }
   @media (max-width: 760px) { .access { grid-template-columns: 1fr; gap: 24px; } .access-actions { justify-items: stretch; } }
+
+  .resto-links { display: flex; flex-wrap: wrap; gap: 12px; }
 </style>

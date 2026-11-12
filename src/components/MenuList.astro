@@ -1,0 +1,35 @@
+---
+import { fcfa, type MenuSection } from '../data/hotel';
+interface Props { sections: MenuSection[]; columns?: number }
+const { sections, columns = 3 } = Astro.props;
+---
+
+<div class="menu" style={`--cols:${columns}`}>
+  {sections.map((s) => (
+    <section class="card menu-section" aria-label={s.name}>
+      <h3>{s.name}</h3>
+      <ul>
+        {s.items.map((i) => (
+          <li>
+            <span class="dish">{i.name}{i.detail && <span class="detail">{i.detail}</span>}</span>
+            {i.price && <span class="price">{fcfa(i.price)}</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+
+<style>
+  .menu { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: var(--gutter); align-items: start; margin-bottom: 24px; }
+  .menu-section { padding: 28px; }
+  .menu-section h3 { font-family: var(--serif); color: var(--bordeaux); font-weight: 600; margin-bottom: 1rem; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { display: flex; justify-content: space-between; gap: 1rem; padding: 12px 0; border-bottom: 1px solid var(--filet); }
+  li:last-child { border-bottom: 0; }
+  .dish { font-weight: 600; display: grid; }
+  .detail { font-weight: 400; font-size: 0.9375rem; color: var(--taupe); }
+  .price { white-space: nowrap; font-weight: 600; }
+  @media (max-width: 960px) { .menu { grid-template-columns: repeat(min(var(--cols), 2), minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } .menu-section { padding: 20px; } }
+</style>

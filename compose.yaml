@@ -1,0 +1,47 @@
+services:
+  site:
+    build:
+      context: .
+      args:
+        SITE_URL: https://${SITE_HOST:-moolah.famproject.cloud}
+        PUBLIC_FORM_ENDPOINT: ${PUBLIC_FORM_ENDPOINT:-}
+    image: moolah-site:latest
+    container_name: moolah_site
+    restart: unless-stopped
+    read_only: true                   
+    tmpfs:
+      - /tmp                            
+    cap_drop: [ALL]                    
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.moolah.rule=Host(`${SITE_HOST:-moolah.famproject.cloud}`)"
+      - "traefik.http.routers.moolah.entrypoints=websecure"
+      - "traefik.http.routers.moolah.tls.certresolver=leresolver"
+      - "traefik.http.routers.moolah.middlewares=moolah-headers,moolah-ratelimit"
+      - "traefik.http.services.moolah.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik-public"
+
+      # En-têtes de sécurité
+      - "traefik.http.middlewares.moolah-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.moolah-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.moolah-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.moolah-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.moolah-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+      - "traefik.http.middlewares.moolah-headers.headers.customResponseHeaders.Cross-Origin-Opener-Policy=same-origin"
+      - "traefik.http.middlewares.moolah-headers.headers.customResponseHeaders.Server="
+      # CSP : aucun script externe ni inline. Si PUBLIC_FORM_ENDPOINT est utilisé,
+      # ajouter son domaine à connect-src (ex. connect-src 'self' https://formspree.io).
+      - "traefik.http.middlewares.moolah-headers.headers.contentSecurityPolicy=default-src 'self'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+
+      # Limite de débit par adresse IP
+      - "traefik.http.middlewares.moolah-ratelimit.ratelimit.average=30"
+      - "traefik.http.middlewares.moolah-ratelimit.ratelimit.burst=60"
+
+networks:
+  traefik-public:
+    external: true

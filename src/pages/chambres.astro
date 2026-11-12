@@ -3,7 +3,6 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import { hotel, rooms, fcfa } from '../data/hotel';
 
-// Les offres n'apparaissent dans les données structurées que si le prix est validé
 const roomsSchema = rooms.map((r) => ({
   '@context': 'https://schema.org',
   '@type': 'HotelRoom',

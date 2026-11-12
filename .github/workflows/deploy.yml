@@ -1,0 +1,65 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Vérifier et construire
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Failles connues dans les dépendances
+        run: npm audit --audit-level=high
+      - name: Vérification des types et des pages
+        run: npx astro check
+      - run: npm run build
+
+  deploy:
+    name: Deploiement
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Préparer la connexion SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          echo "${{ secrets.VPS_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Mettre à jour le code et reconstruire le conteneur
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "${{ vars.VPS_PORT || '22' }}" "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" bash -s <<'SCRIPT'
+            set -euo pipefail
+            cd "${{ vars.APP_DIR }}"
+            git fetch --quiet origin main
+            git reset --hard origin/main      # le .env, non versionné, est conservé
+            docker compose up -d --build --remove-orphans
+            docker image prune -f
+          SCRIPT
+
+      - name: Vérifier que le site répond
+        run: |
+          sleep 5
+          curl -fsS -o /dev/null -w "HTTP %{http_code}\n" "https://${{ vars.SITE_HOST }}/"
+
+      - name: Nettoyer la clé
+        if: always()
+        run: rm -f ~/.ssh/id_deploy
