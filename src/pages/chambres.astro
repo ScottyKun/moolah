@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import { hotel, rooms, fcfa } from '../data/hotel';
+
+// Les offres n'apparaissent dans les données structurées que si le prix est validé
+const roomsSchema = rooms.map((r) => ({
+  '@context': 'https://schema.org',
+  '@type': 'HotelRoom',
+  name: r.name,
+  description: r.summary,
+  url: new URL(`/chambres#${r.slug}`, Astro.site).href,
+  occupancy: { '@type': 'QuantitativeValue', maxValue: r.guests },
+  bed: r.bed,
+  containedInPlace: { '@id': new URL('/#hotel', Astro.site).href },
+  ...(r.price && {
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'XAF',
+      price: r.price,
+      priceSpecification: { '@type': 'UnitPriceSpecification', price: r.price, priceCurrency: 'XAF', unitText: 'nuit', valueAddedTaxIncluded: true },
+      url: new URL(`/reservation?chambre=${r.slug}`, Astro.site).href,
+    },
+  }),
+}));
+---
+
+<Base
+  title="Chambres et suite"
+  description={`Les chambres du Moolah Hotel à Batcham : Standard, Supérieure, Familiale et Suite. Wi-Fi haut débit, room service. Prix TTC en FCFA.`}
+  schema={roomsSchema}
+>
+  <header class="wrap head">
+    <h1>Nos chambres</h1>
+    <p class="lede">Chaque chambre est faite et vérifiée avant votre arrivée. Toutes ont le Wi-Fi haut débit et l'accès au room service.</p>
+  </header>
+
+  <div class="wrap list">
+    {rooms.map((r) => (
+      <article id={r.slug} class="card room">
+        <Photo alt={r.name} src={r.photo} />
+        <div class="body">
+          <h2>{r.name}</h2>
+          <hr class="rule-or" />
+          <p>{r.summary}</p>
+          <dl>
+            <div><dt>Capacité</dt><dd>Jusqu'à {r.guests} personne{r.guests > 1 ? 's' : ''}</dd></div>
+            <div><dt>Literie</dt><dd>{r.bed}</dd></div>
+            <div><dt>Équipements</dt><dd>{r.features.join(', ')}</dd></div>
+          </dl>
+          <div class="cta">
+            <p class="price">
+              {r.price ? <><span class="muted">à partir de</span> <strong>{fcfa(r.price)}</strong> <span class="muted">la nuit, TTC</span></> : <strong>Tarif sur demande</strong>}
+            </p>
+            <a class="btn btn--block-mobile" href={`/reservation?chambre=${r.slug}`}>Demander cette chambre</a>
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <div class="wrap">
+    <p class="caption">Tous nos prix sont indiqués TTC, TVA de {hotel.vat} incluse.</p>
+  </div>
+</Base>
+
+<style>
+  .head { padding-block: 64px 40px; }
+  .head h1 { margin-bottom: 0.75rem; }
+  .list { display: grid; gap: 32px; padding-bottom: 32px; }
+  .room { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); scroll-margin-top: 100px; }
+  .room :global(.photo) { height: 100%; min-height: 280px; }
+  .body { padding: 32px 40px; }
+  dl { margin: 0 0 24px; }
+  dl div { display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; padding: 10px 0; border-bottom: 1px solid var(--filet); font-size: 1rem; }
+  dt { color: var(--taupe); }
+  dd { margin: 0; }
+  .cta { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .price { margin: 0; }
+  .price strong { font-size: 1.25rem; }
+  .price .muted { font-size: 0.9375rem; }
+  .wrap > .caption { padding-bottom: var(--section); }
+  @media (max-width: 860px) {
+    .room { grid-template-columns: 1fr; }
+    .body { padding: 24px 20px; }
+    dl div { grid-template-columns: 7rem 1fr; }
+  }
+</style>

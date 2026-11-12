@@ -1,0 +1,11 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page introuvable" description="Cette page n'existe pas ou a été déplacée." noindex>
+  <section class="wrap msg">
+    <h1>Cette page est introuvable</h1>
+    <p class="lede">Elle a peut-être été déplacée. Vous pouvez repartir de l'accueil ou consulter nos chambres.</p>
+    <div class="actions"><a class="btn" href="/">Retour à l'accueil</a><a class="btn btn--secondary" href="/chambres">Voir les chambres</a></div>
+  </section>
+</Base>
+<style>.msg { padding-block: 96px; display: grid; gap: 1rem; justify-items: start; } .actions { display: flex; gap: 12px; flex-wrap: wrap; }</style>

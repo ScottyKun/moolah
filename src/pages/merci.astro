@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import { hotel } from '../data/hotel';
+---
+<Base title="Demande envoyée" description="Votre demande a bien été envoyée au Moolah Hotel." noindex>
+  <section class="wrap msg">
+    <h1>Demande envoyée</h1>
+    <p class="lede">Merci. Nous vérifions la disponibilité et vous répondons par écrit en moins de {hotel.responseTime}.</p>
+    <p>Pour une demande urgente, appelez la réception au <a href={`tel:${hotel.phone}`}>{hotel.phoneDisplay}</a>.</p>
+    <a class="btn btn--secondary" href="/">Retour à l'accueil</a>
+  </section>
+</Base>
+<style>.msg { padding-block: 96px; display: grid; gap: 1rem; justify-items: start; }</style>

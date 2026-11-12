@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { hotel } from '../data/hotel';
+---
+<Base title="Mentions légales" description="Mentions légales et protection des données personnelles du site de Moolah Hotel, Batcham.">
+  <article class="wrap legal">
+    <h1>Mentions légales</h1>
+    <h2>Éditeur du site</h2>
+    <p>Moolah Hotel, [forme juridique], RCCM [numéro], NIU [numéro].<br />
+    {hotel.address.street && <>{hotel.address.street}, </>}{hotel.address.locality}, Région de l'{hotel.address.region}, {hotel.address.countryName}.<br />
+    Téléphone : {hotel.phoneDisplay}. E-mail : <a href={`mailto:${hotel.email}`}>{hotel.email}</a>.<br />
+    Directeur de la publication : [nom].</p>
+    <h2>Hébergement</h2>
+    <p>[Nom de l'hébergeur], [adresse].</p>
+    <h2>Données personnelles</h2>
+    <p>Les informations saisies dans les formulaires (réservation, devis) servent uniquement à traiter votre demande et à vous recontacter. Elles ne sont ni vendues ni cédées. Elles sont conservées [durée], puis supprimées.</p>
+    <p>Vous pouvez demander à consulter, corriger ou supprimer vos données en écrivant à <a href={`mailto:${hotel.email}`}>{hotel.email}</a>.</p>
+    <h2>Cookies</h2>
+    <p>Ce site ne dépose aucun cookie publicitaire.</p>
+    <h2>Crédits</h2>
+    <p>Photographies : Moolah Hotel. Icônes : Lucide (licence ISC).</p>
+  </article>
+</Base>
+<style>
+  .legal { padding-block: 64px var(--section); max-width: calc(760px + 2 * var(--gutter)); }
+  h1 { margin-bottom: 1.5rem; }
+  h2 { font-size: 1.375rem; margin: 2rem 0 0.6rem; }
+</style>

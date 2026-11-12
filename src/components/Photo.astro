@@ -1,0 +1,42 @@
+---
+// Photo réelle si `src` est fourni (déposer dans /public/images), sinon un cadre d'attente.
+// Charte §20 : uniquement des photos réelles de l'hôtel, jamais de banque d'images.
+interface Props {
+  alt: string;
+  src?: string;
+  ratio?: string;
+  eager?: boolean;
+  class?: string;
+  width?: number;
+  height?: number;
+}
+const { alt, src, ratio = '4 / 3', eager = false, class: cls, width = 1200, height = 900 } = Astro.props;
+---
+
+{src ? (
+  <img
+    class:list={['photo', cls]}
+    src={src}
+    alt={alt}
+    style={`aspect-ratio:${ratio}`}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : undefined}
+    decoding="async"
+    width={width}
+    height={height}
+  />
+) : (
+  <div class:list={['photo', 'placeholder', cls]} role="img" aria-label={alt} style={`aspect-ratio:${ratio}`}>
+    <span>Photo à venir : {alt.toLowerCase()}</span>
+  </div>
+)}
+
+<style>
+  .photo { width: 100%; height: auto; object-fit: cover; display: block; }
+  .placeholder {
+    display: flex; align-items: flex-end; padding: 1rem;
+    background-color: #efe4e2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect x='6' y='6' width='12' height='12' fill='%237c060a' fill-opacity='.05'/%3E%3C/svg%3E");
+    color: var(--taupe); font-size: 0.875rem; font-style: italic;
+  }
+</style>

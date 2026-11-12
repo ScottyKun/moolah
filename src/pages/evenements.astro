@@ -1,0 +1,176 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Icon from '../components/Icon.astro';
+import { hotel, eventTypes } from '../data/hotel';
+
+const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ?? '';
+const offer = [
+  { icon: 'party-popper', title: 'La salle', text: 'Une salle de fête décorée selon vos couleurs, ou une salle de réunion équipée.' },
+  { icon: 'chef-hat', title: 'Le traiteur', text: 'Menus camerounais et internationaux, cocktail, buffet ou service à table.' },
+  { icon: 'bed-double', title: 'Les chambres', text: 'Des chambres pour vos invités venus de loin, et la suite pour les mariés.' },
+  { icon: 'users', title: 'Le suivi', text: 'Un interlocuteur unique qui vous accompagne du devis jusqu’au jour J.' },
+];
+---
+
+<Base
+  title="Mariages, dots, réceptions et séminaires"
+  description="Salles de fête et de réunion, service traiteur et hébergement des invités au Moolah Hotel à Batcham. Demandez votre devis, réponse en moins de 4 h."
+>
+  <section class="wrap intro">
+    <h1>Vos événements à Batcham</h1>
+    <p class="lede">Mariages, dots, anniversaires, réceptions familiales, séminaires : nous accueillons vos invités et nous nous occupons du reste.</p>
+  </section>
+
+  <!-- Galerie « salle décorée » en premier (charte §22) -->
+  <section class="wrap gallery" aria-label="Nos salles">
+    <Photo class="g-main" alt="La salle de fête décorée pour un mariage" ratio="3 / 2" eager />
+    <Photo alt="La salle de réunion" ratio="4 / 3" />
+    <Photo alt="Un buffet du service traiteur" ratio="4 / 3" />
+  </section>
+
+  <section class="section wrap" aria-labelledby="offre-title">
+    <h2 id="offre-title">Tout sur place, avec un seul interlocuteur</h2>
+    <hr class="rule-or" />
+    <ul class="offer">
+      {offer.map((o) => (
+        <li><Icon name={o.icon} /><h3>{o.title}</h3><p>{o.text}</p></li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section section-alt" aria-labelledby="devis-title">
+    <div class="wrap devis">
+      <div>
+        <h2 id="devis-title">Demander un devis</h2>
+        <hr class="rule-or" />
+        <p>Deux étapes, moins de deux minutes. Nous revenons vers vous en moins de {hotel.responseTime} avec une proposition écrite.</p>
+        <div class="note-box"><p>Vous préférez en parler ? Appelez-nous au <a href={`tel:${hotel.phone}`}>{hotel.phoneDisplay}</a>.</p></div>
+      </div>
+
+      <form id="devis" class="card form" data-endpoint={endpoint} data-whatsapp={hotel.whatsapp}>
+        <input type="hidden" name="type" value="Demande de devis événement" />
+        <p class="step-label" id="step-label">Étape 1 sur 2 : votre événement</p>
+
+        <fieldset data-step="1">
+          <legend class="sr-only">Votre événement</legend>
+          <div class="field">
+            <label for="ev-type">Type d'événement</label>
+            <select id="ev-type" name="evenement" required>
+              {eventTypes.map((t) => <option>{t}</option>)}
+            </select>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="ev-date">Date souhaitée</label>
+              <input id="ev-date" name="date" type="date" required />
+            </div>
+            <div class="field">
+              <label for="ev-invites">Nombre d'invités</label>
+              <input id="ev-invites" name="invites" type="number" min="1" inputmode="numeric" required />
+            </div>
+          </div>
+          <fieldset class="needs">
+            <legend class="label">Vous avez besoin de</legend>
+            <label><input type="checkbox" name="besoins" value="Salle" checked /> Salle</label>
+            <label><input type="checkbox" name="besoins" value="Traiteur" /> Traiteur</label>
+            <label><input type="checkbox" name="besoins" value="Décoration" /> Décoration</label>
+            <label><input type="checkbox" name="besoins" value="Chambres pour les invités" /> Chambres pour les invités</label>
+          </fieldset>
+          <button class="btn btn--block-mobile" type="button" data-next>Continuer</button>
+        </fieldset>
+
+        <fieldset data-step="2">
+          <legend class="sr-only">Vos coordonnées</legend>
+          <div class="field">
+            <label for="ev-nom">Nom et prénom</label>
+            <input id="ev-nom" name="nom" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="ev-tel">Téléphone ou WhatsApp</label>
+            <input id="ev-tel" name="telephone" type="tel" autocomplete="tel" placeholder="+237 6…" required />
+          </div>
+          <div class="field">
+            <label for="ev-msg">Précisions <span class="hint">(facultatif)</span></label>
+            <textarea id="ev-msg" name="message" placeholder="Horaires, budget, thème de décoration…"></textarea>
+          </div>
+          <label class="check"><input type="checkbox" name="consentement" value="Oui" required /> J'accepte que Moolah Hotel utilise ces informations pour préparer mon devis.</label>
+          <p class="form-error" data-error role="alert" hidden></p>
+          <div class="actions">
+            <button class="btn btn--secondary" type="button" data-prev>Retour</button>
+            <button class="btn" type="submit">Envoyer ma demande de devis</button>
+          </div>
+          {!endpoint && <p class="hint">Votre demande s'ouvre dans WhatsApp, prête à être envoyée.</p>}
+        </fieldset>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { wireRequestForm } from '../scripts/send-request';
+  const form = document.getElementById('devis') as HTMLFormElement;
+  const steps = form.querySelectorAll<HTMLFieldSetElement>('fieldset[data-step]');
+  const label = document.getElementById('step-label')!;
+  const date = form.querySelector<HTMLInputElement>('#ev-date')!;
+  date.min = new Date().toISOString().slice(0, 10);
+
+  const show = (n: number) => {
+    steps.forEach((s) => (s.hidden = s.dataset.step !== String(n)));
+    label.textContent = n === 1 ? 'Étape 1 sur 2 : votre événement' : 'Étape 2 sur 2 : vos coordonnées';
+    (steps[n - 1].querySelector('input, select') as HTMLElement)?.focus();
+  };
+  show(1);
+  form.querySelector('[data-next]')!.addEventListener('click', () => {
+    const fields = steps[0].querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select');
+    for (const f of fields) if (!f.reportValidity()) return;
+    show(2);
+  });
+  form.querySelector('[data-prev]')!.addEventListener('click', () => show(1));
+
+  wireRequestForm(form, (d) => {
+    const date = new Date(String(d.get('date'))).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    return [
+      'Bonjour Moolah Hotel, je souhaite un devis :',
+      `• Événement : ${d.get('evenement')}`,
+      `• Date : ${date}`,
+      `• Invités : ${d.get('invites')}`,
+      `• Besoins : ${d.getAll('besoins').join(', ') || 'à définir'}`,
+      d.get('message') ? `• Précisions : ${d.get('message')}` : '',
+    ].filter(Boolean).join('\n') + `\n\n${d.get('nom')} — ${d.get('telephone')}`;
+  });
+</script>
+
+<style>
+  .intro { padding-block: 64px 32px; }
+  .intro h1 { margin-bottom: 0.75rem; }
+  .gallery { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--gutter); }
+  .gallery :global(.photo) { border-radius: var(--radius-card); }
+  .gallery :global(.g-main) { grid-row: span 2; height: 100%; aspect-ratio: auto !important; min-height: 320px; }
+  @media (max-width: 760px) { .gallery { grid-template-columns: 1fr 1fr; } .gallery :global(.g-main) { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 3 / 2 !important; height: auto; min-height: 0; } }
+
+  .offer { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px var(--gutter); }
+  .offer li { display: grid; gap: 0.6rem; align-content: start; }
+  .offer h3 { font-size: 1.125rem; }
+  .offer p { margin: 0; color: var(--taupe); font-size: 1rem; }
+  @media (max-width: 960px) { .offer { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .offer { grid-template-columns: 1fr; } }
+
+  .devis { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: start; }
+  .form { padding: 32px; max-width: 640px; width: 100%; }
+  .step-label { font-weight: 600; color: var(--bordeaux); margin-bottom: 1.25rem; }
+  fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 20px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .needs { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+  .needs legend { width: 100%; margin-bottom: 0.5rem; }
+  .needs label, .check { display: flex; gap: 0.5rem; align-items: start; font-size: 1rem; }
+  .needs input, .check input { accent-color: var(--bordeaux); width: 1.1rem; height: 1.1rem; margin-top: 0.25rem; flex: none; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 860px) {
+    .devis { grid-template-columns: 1fr; gap: 24px; }
+    .form { padding: 24px 20px; }
+    .actions { flex-direction: column-reverse; }
+    .actions .btn { width: 100%; }
+  }
+  @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,222 @@
+---
+import Base from '../layouts/Base.astro';
+import { hotel, rooms, fcfa } from '../data/hotel';
+
+const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined) ?? '';
+---
+
+<Base
+  title="Demande de réservation"
+  description={`Envoyez votre demande de réservation au Moolah Hotel à Batcham. Réponse et confirmation écrite en moins de ${hotel.responseTime}.`}
+>
+  <div class="wrap layout">
+    <header class="head">
+      <h1>Demande de réservation</h1>
+      <p class="lede">Indiquez vos dates et la chambre souhaitée. Nous vérifions la disponibilité et vous répondons en moins de {hotel.responseTime}.</p>
+    </header>
+
+    <form id="booking" class="form" data-endpoint={endpoint} data-whatsapp={hotel.whatsapp} novalidate={false}>
+      <input type="hidden" name="type" value="Réservation de chambre" />
+      <fieldset>
+        <legend>Votre séjour</legend>
+        <div class="row">
+          <div class="field">
+            <label for="arrivee">Arrivée</label>
+            <input id="arrivee" name="arrivee" type="date" required />
+          </div>
+          <div class="field">
+            <label for="depart">Départ</label>
+            <input id="depart" name="depart" type="date" required />
+          </div>
+          <div class="field">
+            <label for="voyageurs">Personnes</label>
+            <select id="voyageurs" name="voyageurs">
+              {[1, 2, 3, 4].map((n) => <option value={n} selected={n === 2}>{n}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div class="choices" role="radiogroup" aria-labelledby="chambre-label">
+          <p id="chambre-label" class="label">Chambre</p>
+          {rooms.map((r, i) => (
+            <label class="choice">
+              <input type="radio" name="chambre" value={r.name} data-price={r.price ?? ''} data-guests={r.guests} data-slug={r.slug} checked={i === 0} />
+              <span class="choice-name">{r.name}</span>
+              <span class="choice-meta">Jusqu'à {r.guests} personne{r.guests > 1 ? 's' : ''}</span>
+              <span class="choice-price">{r.price ? fcfa(r.price) : 'Sur demande'}</span>
+            </label>
+          ))}
+        </div>
+
+        <label class="check">
+          <input type="checkbox" name="navette" value="Oui" />
+          J'ai besoin de la navette aéroport
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Vos coordonnées</legend>
+        <div class="row two">
+          <div class="field">
+            <label for="nom">Nom et prénom</label>
+            <input id="nom" name="nom" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="tel">Téléphone ou WhatsApp</label>
+            <input id="tel" name="telephone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+237 6…" required />
+          </div>
+          <div class="field">
+            <label for="email">E-mail <span class="hint">(facultatif)</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="heure">Heure d'arrivée prévue</label>
+            <input id="heure" name="heure_arrivee" type="time" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="message">Une demande particulière ?</label>
+          <textarea id="message" name="message" placeholder="Lit bébé, arrivée tardive, numéro de vol pour la navette…"></textarea>
+        </div>
+        <label class="check">
+          <input type="checkbox" name="consentement" value="Oui" required />
+          J'accepte que Moolah Hotel utilise ces informations pour traiter ma demande.
+        </label>
+      </fieldset>
+
+      <p class="form-error" data-error role="alert" hidden></p>
+      <button class="btn btn--block-mobile" type="submit">Envoyer ma demande</button>
+      {!endpoint && <p class="hint">Votre demande s'ouvre dans WhatsApp, prête à être envoyée à la réception.</p>}
+    </form>
+
+    <aside class="summary" aria-live="polite">
+      <h2>Récapitulatif</h2>
+      <dl>
+        <div><dt>Chambre</dt><dd id="s-room">–</dd></div>
+        <div><dt>Séjour</dt><dd id="s-nights">–</dd></div>
+        <div class="total"><dt>Estimation</dt><dd id="s-total">–</dd></div>
+      </dl>
+      <div class="note-box">
+        <p>Ceci est une demande, pas une réservation ferme. Nous vous confirmons la disponibilité et le tarif par écrit.</p>
+      </div>
+      <p class="caption">Prix TTC, TVA de {hotel.vat} incluse.</p>
+    </aside>
+  </div>
+</Base>
+
+<script>
+  import { wireRequestForm } from '../scripts/send-request';
+
+  const form = document.getElementById('booking') as HTMLFormElement;
+  const $ = (id: string) => document.getElementById(id)!;
+  const arrivee = $('arrivee') as HTMLInputElement;
+  const depart = $('depart') as HTMLInputElement;
+  const voyageurs = $('voyageurs') as HTMLSelectElement;
+  const DAY = 864e5;
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const fr = (v: string) => (v ? new Date(v).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+  const fcfa = (n: number) => `${n.toLocaleString('fr-FR').replace(/\s/g, ' ')} FCFA`;
+
+  // Pré-remplissage depuis l'URL (?arrivee=…&depart=…&voyageurs=…&chambre=slug)
+  const params = new URLSearchParams(location.search);
+  arrivee.min = iso(new Date());
+  arrivee.value = params.get('arrivee') || iso(new Date());
+  depart.value = params.get('depart') || iso(new Date(Date.now() + DAY));
+  if (params.get('voyageurs')) voyageurs.value = params.get('voyageurs')!;
+  const wanted = params.get('chambre');
+  if (wanted) {
+    const r = form.querySelector<HTMLInputElement>(`input[name="chambre"][data-slug="${CSS.escape(wanted)}"]`);
+    if (r) r.checked = true;
+  }
+
+  const nights = () => Math.round((new Date(depart.value).getTime() - new Date(arrivee.value).getTime()) / DAY);
+
+  function update() {
+    depart.min = iso(new Date(new Date(arrivee.value).getTime() + DAY));
+    const guests = Number(voyageurs.value);
+    form.querySelectorAll<HTMLInputElement>('input[name="chambre"]').forEach((r) => {
+      r.disabled = Number(r.dataset.guests) < guests;
+      if (r.disabled && r.checked) {
+        r.checked = false;
+        form.querySelector<HTMLInputElement>('input[name="chambre"]:not(:disabled)')!.checked = true;
+      }
+    });
+    const room = form.querySelector<HTMLInputElement>('input[name="chambre"]:checked');
+    const n = nights();
+    $('s-room').textContent = room?.value ?? '–';
+    $('s-nights').textContent = n > 0 ? `${n} nuit${n > 1 ? 's' : ''}, ${guests} personne${guests > 1 ? 's' : ''}` : 'Dates à vérifier';
+    const price = Number(room?.dataset.price);
+    $('s-total').textContent = n > 0 && price ? fcfa(n * price) : 'Tarif confirmé par écrit';
+  }
+  form.addEventListener('input', update);
+  update();
+
+  form.addEventListener('submit', (e) => {
+    const err = form.querySelector<HTMLElement>('[data-error]')!;
+    if (nights() <= 0) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      err.textContent = 'La date de départ doit être après la date d’arrivée.';
+      err.hidden = false;
+      depart.focus();
+    }
+  });
+
+  wireRequestForm(form, (d) =>
+    [
+      'Bonjour Moolah Hotel, je souhaite réserver :',
+      `• Chambre : ${d.get('chambre')}`,
+      `• Du ${fr(String(d.get('arrivee')))} au ${fr(String(d.get('depart')))} (${nights()} nuit(s))`,
+      `• Personnes : ${d.get('voyageurs')}`,
+      d.get('navette') ? '• Navette aéroport : oui' : '',
+      d.get('heure_arrivee') ? `• Arrivée prévue vers ${d.get('heure_arrivee')}` : '',
+      d.get('message') ? `• Message : ${d.get('message')}` : '',
+    ].filter(Boolean).join('\n') +
+      `\n\n${d.get('nom')} — ${d.get('telephone')}${d.get('email') ? ' — ' + d.get('email') : ''}`,
+  );
+</script>
+
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px 48px; padding-block: 64px var(--section); align-items: start; }
+  .head { grid-column: 1 / -1; }
+  .head h1 { margin-bottom: 0.75rem; }
+  .form { max-width: 640px; }
+  fieldset { border: 0; padding: 0; margin: 0 0 40px; display: grid; gap: 20px; }
+  legend { font-family: var(--serif); font-size: 1.375rem; font-weight: 600; color: var(--bordeaux); margin-bottom: 20px; padding: 0; }
+  .row { display: grid; grid-template-columns: 1fr 1fr 0.7fr; gap: 16px; }
+  .row.two { grid-template-columns: 1fr 1fr; }
+  .label { margin: 0 0 0.35rem; }
+  .choices { display: grid; gap: 8px; }
+  .choice {
+    display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'r n p' 'r m p';
+    align-items: center; column-gap: 14px; padding: 14px 16px;
+    background: var(--blanc); border: 1px solid var(--filet); border-radius: var(--radius); cursor: pointer;
+  }
+  .choice input { grid-area: r; accent-color: var(--bordeaux); width: 1.15rem; height: 1.15rem; }
+  .choice-name { grid-area: n; font-weight: 600; }
+  .choice-meta { grid-area: m; font-size: 0.875rem; color: var(--taupe); }
+  .choice-price { grid-area: p; font-weight: 600; font-size: 1rem; }
+  .choice:has(input:checked) { border-color: var(--bordeaux); box-shadow: inset 0 0 0 1px var(--bordeaux); }
+  .choice:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
+  .check { display: flex; gap: 0.65rem; align-items: start; font-size: 1rem; }
+  .check input { margin-top: 0.3rem; accent-color: var(--bordeaux); width: 1.1rem; height: 1.1rem; flex: none; }
+  .form > .hint { margin-top: 0.75rem; }
+
+  .summary { position: sticky; top: 100px; padding: 28px; display: grid; gap: 16px; background: var(--blanc); border-radius: var(--radius-card); box-shadow: var(--shadow); }
+  .summary h2 { font-size: 1.375rem; }
+  .summary dl { margin: 0; }
+  .summary dl div { display: flex; justify-content: space-between; gap: 1rem; padding: 10px 0; border-bottom: 1px solid var(--filet); font-size: 1rem; }
+  .summary dt { color: var(--taupe); }
+  .summary dd { margin: 0; text-align: right; font-weight: 600; }
+  .summary .total { border-bottom: 0; }
+  .summary .total dd { color: var(--bordeaux); font-size: 1.125rem; }
+  .summary .caption { margin: 0; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; padding-top: 40px; }
+    .summary { position: static; }
+    .row { grid-template-columns: 1fr 1fr; }
+    .row .field:last-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 520px) { .row, .row.two { grid-template-columns: 1fr; } }
+</style>

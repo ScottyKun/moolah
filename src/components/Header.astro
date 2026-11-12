@@ -1,0 +1,90 @@
+---
+import { hotel } from '../data/hotel';
+import Icon from './Icon.astro';
+import WhatsAppIcon from './WhatsAppIcon.astro';
+
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/') || '/';
+// Navigation plate, 7 entrées maximum (charte §22)
+const links = [
+  { href: '/chambres', label: 'Chambres' },
+  { href: '/restaurant', label: 'Restaurant' },
+  { href: '/evenements', label: 'Événements' },
+  { href: '/#services', label: 'Services' },
+  { href: '/#acces', label: 'Accès' },
+];
+const wa = `https://wa.me/${hotel.whatsapp}`;
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/brand/logo-horizontal.webp" alt="Moolah Hotel, retour à l'accueil" width="208" height="40" />
+    </a>
+
+    <nav class="nav-desktop" aria-label="Navigation principale">
+      <ul>
+        {links.map((l) => (
+          <li><a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a class="tel" href={`tel:${hotel.phone}`}><Icon name="phone" class="icon icon-sm" />{hotel.phoneDisplay}</a>
+    <a class="btn book" href="/reservation">Réserver</a>
+
+    <details class="nav-mobile">
+      <summary><span class="sr-only">Ouvrir le menu</span><Icon name="menu" class="icon" /></summary>
+      <nav aria-label="Navigation principale">
+        <ul>
+          {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          <li><a href="/reservation">Réserver une chambre</a></li>
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<!-- Téléphone et WhatsApp à portée de pouce sur mobile (charte §22) -->
+<div class="thumb-bar" aria-label="Contact rapide">
+  <a href={`tel:${hotel.phone}`}><Icon name="phone" class="icon icon-sm" />Appeler</a>
+  <a class="wa" href={wa} rel="noopener"><WhatsAppIcon class="icon-sm" />WhatsApp</a>
+  <a class="res" href="/reservation">Réserver</a>
+</div>
+
+<style>
+  .site-header { position: sticky; top: 0; z-index: 30; background: var(--blanc); border-bottom: 1px solid var(--filet); }
+  .bar { display: flex; align-items: center; gap: 1.75rem; min-height: 76px; }
+  .logo img { width: 208px; height: auto; }
+  .nav-desktop { margin-left: auto; }
+  .nav-desktop ul { display: flex; gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+  .nav-desktop a { color: var(--encre); text-decoration: none; font-weight: 600; font-size: 1rem; }
+  .nav-desktop a:hover, .nav-desktop a[aria-current='page'] { color: var(--bordeaux); text-decoration: underline; text-decoration-color: var(--or); text-underline-offset: 0.4em; }
+  .tel { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--encre); text-decoration: none; font-weight: 600; font-size: 1rem; white-space: nowrap; }
+  :global(.icon-sm) { width: 18px; height: 18px; }
+  .nav-mobile { display: none; }
+
+  .thumb-bar { display: none; }
+
+  @media (max-width: 1080px) { .tel { display: none; } }
+  @media (max-width: 860px) {
+    .bar { min-height: 64px; gap: 1rem; }
+    .logo img { width: 168px; }
+    .nav-desktop, .book { display: none; }
+    .nav-mobile { display: block; margin-left: auto; }
+    .nav-mobile summary { list-style: none; cursor: pointer; padding: 0.5rem; }
+    .nav-mobile summary::-webkit-details-marker { display: none; }
+    .nav-mobile nav { position: absolute; left: 0; right: 0; top: 100%; background: var(--blanc); border-bottom: 1px solid var(--filet); box-shadow: var(--shadow); }
+    .nav-mobile ul { list-style: none; margin: 0; padding: 0.5rem var(--gutter) 1rem; }
+    .nav-mobile a { display: block; padding: 0.85rem 0; border-bottom: 1px solid var(--filet); color: var(--encre); font-weight: 600; text-decoration: none; }
+
+    .thumb-bar {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; position: fixed; inset: auto 0 0 0; z-index: 30;
+      background: var(--blanc); border-top: 1px solid var(--filet); padding-bottom: env(safe-area-inset-bottom);
+    }
+    .thumb-bar a {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem; min-height: 56px;
+      font-weight: 600; font-size: 1rem; color: var(--encre); text-decoration: none;
+    }
+    .thumb-bar .wa { color: #0b3d1f; background: var(--whatsapp); }
+    .thumb-bar .res { background: var(--bordeaux); color: var(--blanc); }
+  }
+</style>

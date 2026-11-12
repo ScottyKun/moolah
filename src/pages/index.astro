@@ -1,11 +1,202 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import KeyTag from '../components/KeyTag.astro';
+import RoomCard from '../components/RoomCard.astro';
+import Icon from '../components/Icon.astro';
+import WhatsAppIcon from '../components/WhatsAppIcon.astro';
+import { hotel, rooms, services, promises, faq } from '../data/hotel';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${hotel.geo.lat},${hotel.geo.lng}`;
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<Base
+  title="Moolah Hotel, hôtel, restaurant et salles de fête à Batcham"
+  description={hotel.description}
+  schema={faqSchema}
+>
+  <!-- Hero statique (charte §22 : pas de diaporama), texte sur fond crème -->
+  <section class="hero wrap">
+    <div class="hero-text">
+      <h1>Votre hôtel à Batcham, pour dormir, se restaurer et célébrer</h1>
+      <hr class="rule-or" />
+      <p class="lede">
+        Au cœur de la Région de l'Ouest, Moolah Hotel vous accueille avec l'exigence d'un grand établissement et la
+        chaleur d'une maison.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn--secondary" href="/chambres">Voir les chambres</a>
+        <a class="btn btn--whatsapp" href={`https://wa.me/${hotel.whatsapp}`} rel="noopener"><WhatsAppIcon />Écrire sur WhatsApp</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <Photo class="hero-photo" alt="La façade de l'hôtel" ratio="5 / 4" eager />
+      <div class="tag-holder"><KeyTag /></div>
+    </div>
+  </section>
+
+  <section class="wrap promises" aria-label="Notre promesse">
+    {promises.map((p) => (
+      <div>
+        <h2 class="promise-title">{p.title}</h2>
+        <p>{p.text}</p>
+      </div>
+    ))}
+  </section>
+
+  <section class="section section-alt" aria-labelledby="chambres-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="chambres-title">Nos chambres</h2>
+        <a href="/chambres">Comparer les chambres</a>
+      </div>
+      <div class="room-grid">
+        {rooms.map((r) => <RoomCard room={r} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap split" aria-labelledby="resto-title">
+    <Photo alt="Un plat servi au restaurant" />
+    <div>
+      <h2 id="resto-title">Le restaurant et le bar lounge</h2>
+      <hr class="rule-or" />
+      <p>
+        Cuisine camerounaise et internationale, du petit-déjeuner au dîner. Le taro sauce jaune côtoie les grillades, et le
+        bar lounge vous reçoit pour un verre en fin de journée.
+      </p>
+      <p>Le restaurant est ouvert à tous, que vous soyez client de l'hôtel ou non.</p>
+      <a class="btn btn--secondary" href="/restaurant">Consulter la carte</a>
+    </div>
+  </section>
+
+  <section class="events windows-pattern" aria-labelledby="events-title">
+    <div class="wrap events-inner">
+      <div>
+        <h2 id="events-title">Votre mariage, votre dot, votre séminaire</h2>
+        <p>
+          Salles de fête et de réunion, décoration, service traiteur et chambres pour vos invités : nous organisons votre
+          événement avec vous, du devis au jour J.
+        </p>
+      </div>
+      <a class="btn btn-light" href="/evenements">Demander un devis</a>
+    </div>
+  </section>
+
+  <section id="services" class="section wrap" aria-labelledby="services-title">
+    <h2 id="services-title">Nos services</h2>
+    <hr class="rule-or" />
+    <ul class="services">
+      {services.map((s) => (
+        <li>
+          <Icon name={s.icon} />
+          <div>
+            <h3>{s.name}</h3>
+            <p>{s.detail}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="section section-alt" aria-labelledby="faq-title">
+    <div class="wrap faq">
+      <h2 id="faq-title">Questions fréquentes</h2>
+      <div>
+        {faq.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="acces" class="section wrap access" aria-labelledby="acces-title">
+    <div>
+      <h2 id="acces-title">Nous trouver</h2>
+      <hr class="rule-or" />
+      <address>
+        <strong>Moolah Hotel</strong><br />
+        {hotel.address.street && <>{hotel.address.street}<br /></>}
+        {hotel.address.locality}, Région de l'{hotel.address.region}, {hotel.address.countryName}
+      </address>
+      <p class="muted">Navette depuis l'aéroport sur demande, à préciser lors de votre réservation.</p>
+    </div>
+    <div class="access-actions">
+      <a class="btn" href={mapsUrl} rel="noopener">Ouvrir l'itinéraire</a>
+      <a class="btn btn--secondary" href={`tel:${hotel.phone}`}><Icon name="phone" class="icon icon-sm" />Appeler la réception</a>
+      <a class="btn btn--whatsapp" href={`https://wa.me/${hotel.whatsapp}`} rel="noopener"><WhatsAppIcon />WhatsApp</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero : texte à gauche sur crème, photo à droite, l'étiquette de clé suspendue sur la photo */
+  .hero { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: center; padding-block: 64px 96px; }
+  .hero-text h1 { max-width: 16ch; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 1.75rem; }
+  .hero-visual { position: relative; }
+  .hero-visual :global(.hero-photo) { border-radius: var(--radius-card); }
+  .tag-holder { position: absolute; left: -40px; bottom: -56px; transform-origin: 50% 0; rotate: -3deg; }
+  @media (prefers-reduced-motion: no-preference) {
+    .tag-holder { animation: swing 1.4s cubic-bezier(.3,1.5,.5,1) 0.3s both; }
+    @keyframes swing { from { rotate: 7deg; } to { rotate: -3deg; } }
+  }
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; gap: 32px; padding-block: 40px 48px; }
+    .tag-holder { position: static; rotate: 0deg; animation: none; display: flex; justify-content: center; margin-top: -72px; }
+  }
+
+  .promises { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); padding-block: 0 var(--section); }
+  .promises > div { border-top: 1px solid var(--or); padding-top: 1.25rem; }
+  .promise-title { font-size: 1.375rem; margin-bottom: 0.4rem; }
+  .promises p { color: var(--taupe); margin: 0; }
+  @media (max-width: 760px) { .promises { grid-template-columns: 1fr; } }
+
+  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 32px; }
+  .head a { font-weight: 600; }
+  .room-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter); }
+  @media (max-width: 1080px) { .room-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .room-grid { grid-template-columns: 1fr; } }
+
+  .split { display: grid; grid-template-columns: 7fr 5fr; gap: 48px; align-items: center; }
+  .split :global(.photo) { border-radius: var(--radius-card); }
+  @media (max-width: 860px) { .split { grid-template-columns: 1fr; gap: 24px; } }
+
+  .events { background-color: var(--bordeaux); color: var(--blanc); }
+  .events-inner { display: grid; grid-template-columns: 1fr auto; gap: 24px 48px; align-items: center; padding-block: 72px; }
+  .events h2 { color: var(--blanc); margin-bottom: 0.75rem; }
+  .events p { margin: 0; color: #f4e6e8; }
+  .btn-light { background: var(--blanc); border-color: var(--blanc); color: var(--bordeaux); }
+  .btn-light:hover { background: var(--rose); border-color: var(--rose); color: var(--bordeaux); }
+  @media (max-width: 760px) { .events-inner { grid-template-columns: 1fr; padding-block: 48px; } .btn-light { width: 100%; } }
+
+  .services { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px var(--gutter); }
+  .services li { display: grid; gap: 0.75rem; align-content: start; }
+  .services h3 { font-size: 1.125rem; margin-bottom: 0.25rem; }
+  .services p { margin: 0; font-size: 1rem; color: var(--taupe); }
+  @media (max-width: 960px) { .services { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .services { grid-template-columns: 1fr; } .services li { grid-template-columns: auto 1fr; gap: 1rem; } }
+
+  .faq { display: grid; grid-template-columns: 4fr 8fr; gap: var(--gutter); }
+  details { border-bottom: 1px solid #e3cfd8; }
+  details:first-child { border-top: 1px solid #e3cfd8; }
+  summary { cursor: pointer; padding: 1.1rem 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; color: var(--bordeaux); font-size: 1.4rem; line-height: 1; }
+  details[open] summary::after { content: '−'; }
+  details p { color: var(--taupe); }
+  @media (max-width: 760px) { .faq { grid-template-columns: 1fr; } }
+
+  .access { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; }
+  .access address { font-style: normal; margin-bottom: 1rem; }
+  .access-actions { display: grid; gap: 12px; justify-items: start; }
+  @media (max-width: 760px) { .access { grid-template-columns: 1fr; gap: 24px; } .access-actions { justify-items: stretch; } }
+</style>

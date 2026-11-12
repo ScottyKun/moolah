@@ -1,0 +1,11 @@
+{
+  "name": "Moolah Hotel",
+  "short_name": "Moolah",
+  "icons": [
+    { "src": "/android-chrome-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#7c060a",
+  "background_color": "#faf7f5",
+  "display": "browser"
+}

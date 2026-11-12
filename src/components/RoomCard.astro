@@ -1,0 +1,30 @@
+---
+// Carte chambre §20 : fond blanc, image 4:3, titre + 2 lignes + prix + CTA
+import Photo from './Photo.astro';
+import { fcfa, type Room } from '../data/hotel';
+interface Props { room: Room }
+const { room } = Astro.props;
+---
+
+<article class="card room">
+  <Photo alt={room.name} src={room.photo} />
+  <div class="body">
+    <h3>{room.name}</h3>
+    <p class="muted">{room.summary}</p>
+    <p class="price">
+      {room.price ? <><span class="from">à partir de</span> <strong>{fcfa(room.price)}</strong> <span class="from">la nuit, TTC</span></> : <strong>Tarif sur demande</strong>}
+    </p>
+    <a class="btn btn--secondary" href={`/reservation?chambre=${room.slug}`}>Demander cette chambre</a>
+  </div>
+</article>
+
+<style>
+  .room { display: flex; flex-direction: column; }
+  .body { display: flex; flex-direction: column; gap: 0.6rem; padding: 20px 20px 24px; flex: 1; }
+  .body p { margin: 0; }
+  .muted { font-size: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .price { margin-top: auto !important; padding-top: 0.4rem; }
+  .price strong { font-size: 1.125rem; }
+  .from { font-size: 0.875rem; color: var(--taupe); }
+  .btn { margin-top: 0.4rem; }
+</style>

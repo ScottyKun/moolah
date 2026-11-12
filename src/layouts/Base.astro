@@ -1,0 +1,92 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { hotel, services } from '../data/hotel';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Image de partage (1200×630), chemin depuis /public */
+  image?: string;
+  /** Données structurées propres à la page */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const { title, description, image = '/og-image.jpg', schema, noindex = false } = Astro.props;
+
+const cleanPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/') || '/';
+const canonical = new URL(cleanPath, Astro.site);
+const ogImage = new URL(image, Astro.site);
+const fullTitle = title.includes(hotel.name) ? title : `${title} | ${hotel.name}, Batcham`;
+
+const hotelSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Hotel',
+  '@id': new URL('/#hotel', Astro.site).href,
+  name: hotel.name,
+  description: hotel.description,
+  url: Astro.site?.href,
+  logo: new URL('/brand/logo-principal.png', Astro.site).href,
+  image: ogImage.href,
+  telephone: hotel.phone,
+  email: hotel.email,
+  currenciesAccepted: 'XAF',
+  paymentAccepted: 'Espèces',
+  checkinTime: hotel.checkIn,
+  checkoutTime: hotel.checkOut,
+  address: {
+    '@type': 'PostalAddress',
+    ...(hotel.address.street && { streetAddress: hotel.address.street }),
+    addressLocality: hotel.address.locality,
+    addressRegion: hotel.address.region,
+    addressCountry: hotel.address.country,
+  },
+  geo: { '@type': 'GeoCoordinates', latitude: hotel.geo.lat, longitude: hotel.geo.lng },
+  amenityFeature: services.map((s) => ({ '@type': 'LocationFeatureSpecification', name: s.name, value: true })),
+  ...(Object.values(hotel.social).some(Boolean) && { sameAs: Object.values(hotel.social).filter(Boolean) }),
+};
+
+const schemas = [hotelSchema, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_CM" />
+    <meta property="og:site_name" content={hotel.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7c060a" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+  </head>
+  <body>
+    <a class="skip" href="#contenu">Aller au contenu</a>
+    <Header />
+    <main id="contenu">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

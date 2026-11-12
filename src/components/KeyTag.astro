@@ -1,0 +1,72 @@
+---
+// Demande rapide, en forme d'étiquette de clé d'hôtel.
+// Transmet les dates à /reservation qui pré-remplit le formulaire complet.
+---
+
+<form class="keytag" action="/reservation" method="get" aria-labelledby="keytag-title">
+  <span class="ring" aria-hidden="true"></span>
+  <p id="keytag-title" class="title">Vos dates de séjour</p>
+  <div class="field">
+    <label for="kt-arrivee">Arrivée</label>
+    <input id="kt-arrivee" name="arrivee" type="date" required />
+  </div>
+  <div class="field">
+    <label for="kt-depart">Départ</label>
+    <input id="kt-depart" name="depart" type="date" required />
+  </div>
+  <div class="field">
+    <label for="kt-voyageurs">Personnes</label>
+    <select id="kt-voyageurs" name="voyageurs">
+      <option value="1">1 personne</option>
+      <option value="2" selected>2 personnes</option>
+      <option value="3">3 personnes</option>
+      <option value="4">4 personnes</option>
+    </select>
+  </div>
+  <button class="btn" type="submit">Faire une demande</button>
+  <p class="note">Réponse en moins de 4 h</p>
+</form>
+
+<script>
+  const a = document.getElementById('kt-arrivee') as HTMLInputElement | null;
+  const d = document.getElementById('kt-depart') as HTMLInputElement | null;
+  if (a && d) {
+    const iso = (dt: Date) => dt.toISOString().slice(0, 10);
+    a.min = iso(new Date());
+    a.value ||= iso(new Date());
+    d.min = iso(new Date(Date.now() + 864e5));
+    d.value ||= iso(new Date(Date.now() + 864e5));
+    a.addEventListener('change', () => {
+      const next = iso(new Date(new Date(a.value).getTime() + 864e5));
+      d.min = next;
+      if (d.value <= a.value) d.value = next;
+    });
+  }
+</script>
+
+<style>
+  .keytag {
+    --notch: 22px;
+    position: relative; display: grid; gap: 0.9rem;
+    width: min(21rem, 100%);
+    padding: 64px 24px 24px;
+    background: var(--blanc);
+    border-radius: 160px 160px 0 0;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, var(--notch) 100%, 0 calc(100% - var(--notch)));
+    filter: drop-shadow(0 4px 16px rgba(26, 26, 26, 0.08));
+  }
+  /* Filet or sable intérieur : le détail premium */
+  .keytag::before {
+    content: ''; position: absolute; inset: 8px; pointer-events: none;
+    border: 1px solid var(--or); border-radius: 152px 152px 0 0;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 17px), calc(100% - 17px) 100%, 17px 100%, 0 calc(100% - 17px));
+  }
+  .ring {
+    position: absolute; top: 22px; left: 50%; translate: -50% 0;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--creme); box-shadow: inset 0 1px 3px rgba(26, 26, 26, 0.25);
+  }
+  .title { margin: 0; text-align: center; font-family: var(--serif); font-size: 1.375rem; font-weight: 600; color: var(--bordeaux); }
+  .btn { width: 100%; }
+  .note { margin: 0; text-align: center; font-size: 0.875rem; color: var(--taupe); }
+</style>

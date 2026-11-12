@@ -1,0 +1,14 @@
+---
+// Icônes linéaires Lucide (licence ISC), intégrées au build : aucun JS ni requête.
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+interface Props { name: string; class?: string; label?: string }
+const { name, class: cls = 'icon', label } = Astro.props;
+const require = createRequire(import.meta.url);
+const raw = readFileSync(require.resolve(`lucide-static/icons/${name}.svg`), 'utf8');
+const svg = raw
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace('<svg', `<svg class="${cls}" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true" focusable="false"'}`)
+  .replace(/ width="24"| height="24"/g, '');
+---
+<Fragment set:html={svg} />

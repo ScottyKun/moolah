@@ -1,0 +1,58 @@
+---
+import { hotel } from '../data/hotel';
+const year = new Date().getFullYear();
+const socials = Object.entries(hotel.social).filter(([, url]) => url);
+---
+
+<footer class="site-footer">
+  <div class="wrap grid">
+    <img class="logo" src="/brand/logo-blanc.webp" alt="Moolah Hotel" width="180" height="131" />
+    <div>
+      <p class="h">Adresse</p>
+      <address>
+        {hotel.address.street && <>{hotel.address.street}<br /></>}
+        {hotel.address.locality}, Région de l'{hotel.address.region}<br />
+        {hotel.address.countryName}
+      </address>
+    </div>
+    <div>
+      <p class="h">Contact</p>
+      <p>
+        <a href={`tel:${hotel.phone}`}>{hotel.phoneDisplay}</a><br />
+        <a href={`https://wa.me/${hotel.whatsapp}`} rel="noopener">WhatsApp</a><br />
+        <a href={`mailto:${hotel.email}`}>{hotel.email}</a>
+      </p>
+    </div>
+    <div>
+      <p class="h">L'hôtel</p>
+      <ul>
+        <li><a href="/chambres">Chambres</a></li>
+        <li><a href="/restaurant">Restaurant</a></li>
+        <li><a href="/evenements">Événements</a></li>
+        {socials.map(([name, url]) => <li><a href={url} rel="noopener" style="text-transform:capitalize">{name}</a></li>)}
+        <li><a href="/mentions-legales">Mentions légales</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap legal">
+    <p>© {year} Moolah Hotel, Batcham. Prix TTC, TVA de {hotel.vat} incluse.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--encre); color: #ece7e3; padding-block: 64px 32px; }
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: var(--gutter); }
+  .logo { width: 180px; height: auto; }
+  .h { font-family: var(--serif); font-size: 1.125rem; color: var(--blanc); margin-bottom: 0.6rem; }
+  address { font-style: normal; }
+  a { color: #ece7e3; }
+  a:hover { color: var(--or); }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
+  .legal { margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.875rem; color: #b9b0a9; }
+  .legal p { margin: 0; max-width: none; }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .logo { grid-column: 1 / -1; width: 150px; }
+    .site-footer { padding-bottom: calc(32px + 56px); } /* place pour la barre de contact mobile */
+  }
+</style>
